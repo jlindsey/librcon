@@ -1,0 +1,5 @@
+logs/
+world/
+*.jar
+*.txt
+*.json
