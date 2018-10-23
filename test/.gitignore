@@ -3,3 +3,4 @@ world/
 *.jar
 *.txt
 *.json
+*.properties

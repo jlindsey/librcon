@@ -7,5 +7,6 @@ if ! [[ -e "server.jar" ]]; then
     curl -L -o server.jar "$SERVER_URL"
 fi
 echo "eula=true" > eula.txt
+cp server.properties.local server.properties
 java -server -jar server.jar nogui
 popd

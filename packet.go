@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var nextID int32 = 1
+//go:generate stringer -type=PacketType
 
 // PacketType is the packet type
 type PacketType int32
@@ -20,6 +20,8 @@ const (
 	typeError    PacketType = -1
 )
 
+const packetSize = 4096
+
 // Packet is the packet type
 type Packet struct {
 	ID      int32
@@ -28,18 +30,16 @@ type Packet struct {
 }
 
 // NewPacket returns a new Packet
-func NewPacket(packetType PacketType, payload string) (*Packet, error) {
+func NewPacket(id int32, packetType PacketType, payload string) (*Packet, error) {
 	if packetType != 3 && packetType != 2 {
 		return nil, errors.New("invalid packet type, must be 2 or 3")
 	}
 
 	packet := Packet{
-		ID:      nextID,
+		ID:      id,
 		Type:    packetType,
 		Payload: payload,
 	}
-
-	nextID++
 
 	return &packet, nil
 }
@@ -65,7 +65,7 @@ func Decode(b []byte) (*Packet, error) {
 	}
 	packet.Type = PacketType(t)
 
-	packetLen = packetLen - 4 - 4
+	packetLen = packetLen - 4 - 4 - 2
 	strBuf := make([]byte, packetLen)
 	_, err = buf.Read(strBuf)
 	if err != nil {
@@ -107,7 +107,7 @@ func (p *Packet) Encode() ([]byte, error) {
 }
 
 func (p *Packet) String() string {
-	return fmt.Sprintf("Packet{ ID:%d, Type:%d, Payload:%#v }", p.ID, p.Type, p.Payload)
+	return fmt.Sprintf("Packet{ ID:%d, Type:%s, Payload:%#v }", p.ID, p.Type, p.Payload)
 }
 
 func readInt(buf *bytes.Buffer) (int32, error) {
